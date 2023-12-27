@@ -18,16 +18,14 @@
 # 3. make sure permissions work in replaced XML config
 # 4. put backup config in storage location and verify path
 
-$PWD='/root/sienna'
-
 # refer to the config vars
 .  /root/sienna/config.sh
-
-echo "This is the path to the config we are monitoring: $FULL_CONF_PATH"
 
 function log(){
     $(logger "SIENNA-CONF: $1")
 }
+$(log "### COMMENCING CHECK PROCEDURE FOR 0byte ERROR###")
+$(log "Monitored config file: $FULL_CONF_PATH")
 
 function check_file(){
     if [ -s $1 ]; then
@@ -47,21 +45,18 @@ conf_ok=$(check_file $FULL_CONF_PATH)
 backup_ok=$(check_file $FULL_BACKUP_PATH)
 
 if  [ $backup_ok -eq 1 ]; then
-    $(log "Backup has been checked and is fine.")
-    echo "Backup is fine. Checking for running config".
+    $(log "Backup exists in: $FULL_BACKUP_PATH")
     if  [ $conf_ok -eq 1 ]; then
-        echo "Running onfig is fine. No action taken."
+        $(log "Running config at $FULL_CONF_PATH is >0bytes. No restorting action required.")
         # $(cp $FULL_CONF_PATH $FULL_BACKUP_PATH)
     elif [ $conf_ok -eq 0 ]; then
-        echo "Running config broken. Restoring from backup".
+        $(log "Running config at $FULL_CONF_PATH is either ==0bytes or file does not exist. Restoring from backup at $FULL_BACKUP_PATH.")
         $(cp $FULL_BACKUP_PATH $FULL_CONF_PATH)
     else
-        echo "Something went seriously wrong."
+        $(log "Something went seriously wrong.")
     fi
     
 elif [ $backup_ok -eq 0 ]; then
-    echo "Backup is missing, please provide external running conf to source dir:"
-    echo $FULL_BACKUP_PATH
+    $(log "Backup is missing, please provide external running conf to source dir: $FULL_BACKUP_PATH")
 fi
-
 
