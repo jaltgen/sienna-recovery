@@ -12,6 +12,12 @@
 # Dependencies: cron
 # =====================================================================
 
+# INSTALL
+# 1. change paths to relevant paths
+# 2. configure crontab -e in root user
+# 3. make sure permissions work in replaced XML config
+# 4. put backup config in storage location and verify path
+
 $PWD='/root/sienna'
 
 # refer to the config vars
