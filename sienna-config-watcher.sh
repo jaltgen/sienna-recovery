@@ -9,7 +9,7 @@
 # To this end, a backup will be created every time the config is fine. 
 # This script can then be called from cron every X minutes, to ensure there is a frequent file to backup.
 # Usage: backup.sh
-# Dependencies: cron
+# Dependencies: cron, logger, awk, ls, cp
 # =====================================================================
 
 # INSTALL
@@ -52,11 +52,20 @@ if  [ $backup_ok -eq 1 ]; then
     elif [ $conf_ok -eq 0 ]; then
         $(log "Running config at $FULL_CONF_PATH is either ==0bytes or file does not exist. Restoring from backup at $FULL_BACKUP_PATH.")
         $(cp $FULL_BACKUP_PATH $FULL_CONF_PATH)
-    else
+        $(chown $SIENNA_USER:$SIENNA_GROUP $FULL_CONF_PATH)
+        copy_check=$(check_file $FULL_CONF_PATH)
+                if  [ $conf_ok -eq 1 ]; then
+                        $(log "Conf has been restored to: $FULL_CONF_PATH")
+                        $(log "with owner:group = $SIENNA_USER:$SIENNA_GROUP ")
+                else
+                        $(log "Config could not be restored.")
+
+        else
         $(log "Something went seriously wrong.")
     fi
     
 elif [ $backup_ok -eq 0 ]; then
     $(log "Backup is missing, please provide external running conf to source dir: $FULL_BACKUP_PATH")
 fi
+
 
