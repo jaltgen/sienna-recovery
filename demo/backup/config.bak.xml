@@ -1,0 +1,20 @@
+<name>My Demo App</name>
+
+<version>1.0.0</version>
+<host>localhost</host>
+
+<port>3306</port>
+
+<name>demo_db</name>
+
+<username>root</username>
+
+<password>password</password>
+<file>app.log</file>
+
+<level>info</level>
+<level>info</level>
+<level>info</level>
+<level>info</level>
+<level>info</level>
+<level>info</level>
