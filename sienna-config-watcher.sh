@@ -53,14 +53,9 @@ if  [ $backup_ok -eq 1 ]; then
         $(log "Running config at $FULL_CONF_PATH is either ==0bytes or file does not exist. Restoring from backup at $FULL_BACKUP_PATH.")
         $(cp $FULL_BACKUP_PATH $FULL_CONF_PATH)
         $(chown $SIENNA_USER:$SIENNA_GROUP $FULL_CONF_PATH)
-        copy_check=$(check_file $FULL_CONF_PATH)
-                if  [ $conf_ok -eq 1 ]; then
-                        $(log "Conf has been restored to: $FULL_CONF_PATH")
-                        $(log "with owner:group = $SIENNA_USER:$SIENNA_GROUP ")
-                else
-                        $(log "Config could not be restored.")
-
-        else
+        # compare the two files and see if they are the same
+        $(cmp --silent $FULL_CONF_PATH $FULL_BACKUP_PATH  && log "Conf has been restored to: $FULL_CONF_PATH" || log "Config could not be restored.")
+    else    
         $(log "Something went seriously wrong.")
     fi
     
