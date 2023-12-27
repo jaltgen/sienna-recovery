@@ -25,6 +25,10 @@ $PWD='/root/sienna'
 
 echo "This is the path to the config we are monitoring: $FULL_CONF_PATH"
 
+function log(){
+    $(logger "SIENNA-CONF: $1")
+}
+
 function check_file(){
     if [ -s $1 ]; then
         # echo "File $1 exists."
@@ -43,6 +47,7 @@ conf_ok=$(check_file $FULL_CONF_PATH)
 backup_ok=$(check_file $FULL_BACKUP_PATH)
 
 if  [ $backup_ok -eq 1 ]; then
+    $(log "Backup has been checked and is fine.")
     echo "Backup is fine. Checking for running config".
     if  [ $conf_ok -eq 1 ]; then
         echo "Running onfig is fine. No action taken."
