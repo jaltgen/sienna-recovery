@@ -13,7 +13,7 @@
 # =====================================================================
 
 # MODIFY HERE
-vars='/home/ubuntu/config-saver/config.sh'
+VARS='/home/ubuntu/config-saver/config.sh'
 
 # INSTALL
 # 1. change paths to relevant paths
@@ -32,6 +32,8 @@ function log(){
 $(log "### COMMENCING CHECK PROCEDURE FOR 0byte ERROR###")
 $(log "Monitored config file: $FULL_CONF_PATH")
 
+
+
 function check_file(){
     if [ -s $1 ]; then
         # echo "File $1 exists."
@@ -46,26 +48,45 @@ function check_file(){
         echo 0
     fi
 }
-conf_ok=$(check_file $FULL_CONF_PATH)
-backup_ok=$(check_file $FULL_BACKUP_PATH)
 
-if  [ $backup_ok -eq 1 ]; then
-    $(log "Backup exists in: $FULL_BACKUP_PATH")
-    if  [ $conf_ok -eq 1 ]; then
-        $(log "Running config at $FULL_CONF_PATH is >0bytes. No restorting action required.")
-        # $(cp $FULL_CONF_PATH $FULL_BACKUP_PATH)
-    elif [ $conf_ok -eq 0 ]; then
-        $(log "Running config at $FULL_CONF_PATH is either ==0bytes or file does not exist. Restoring from backup at $FULL_BACKUP_PATH.")
-        $(cp $FULL_BACKUP_PATH $FULL_CONF_PATH)
+function exit-checks(){
+        $(log "The following backup will be used to restore NDIPE config: $1")
+        $(cp $1 $FULL_CONF_PATH)
         $(chown $SIENNA_USER:$SIENNA_GROUP $FULL_CONF_PATH)
         # compare the two files and see if they are the same
-        $(cmp --silent $FULL_CONF_PATH $FULL_BACKUP_PATH  && log "Conf has been restored to: $FULL_CONF_PATH" || log "Config could not be restored.")
+        $(cmp --silent $1 $FULL_CONF_PATH  && log "Conf has been restored to: $FULL_CONF_PATH" || log "Config could not be restored.")
+        exit 1
+}
+
+conf_ok=$(check_file $FULL_CONF_PATH)
+pre_boot_ok=$(check_file $PRE_BACKUP_PATH) 
+last_flush_ok=$(check_file $LAST_BACKUP_PATH) 
+backup_ok=$(check_file $FULL_BACKUP_PATH)
+
+
+if  [ $conf_ok -eq 1 ]; then
+    # if the config file is fine, no action is taken and the script terminates
+    $(log "Running config at $FULL_CONF_PATH is >0bytes. No restorting action required.")
+    exit 1
+elif [ $conf_ok -eq 0 ]; then
+    # if the config file is not fine, we commence searching for backups
+    $(log "NDIPE config seems broken (==0bytes or missing). Commencing checks of backups.")
+    if  [ $pre_boot_ok -eq 1 ]; then
+        # the pre-boot backup is the "latest" we have, thus given preference as it maintains user changes till the last shutdown
+        $(exit-checks $PRE_BACKUP_PATH) 
+    elif [ $last_flush_ok -eq 1 ]; then
+        # if the pre-boot is broken (because maybe the problem exists in the OS @boot, we can still use the pre-shutdown one
+        $(exit-checks $LAST_BACKUP_PATH) 
+    elif [ $backup_ok -eq 1 ]; then
+        # if even the pre shutdown one is broken, we can still refer to the user-supplied "golden backup" 
+        $(exit-checks $FULL_BACKUP_PATH) 
     else    
-        $(log "Something went seriously wrong.")
+        # if no backup was found at all, we have a serious issue
+        $(log "No backup could be found that was >0bytes. Something went seriously wrong.")
     fi
-    
-elif [ $backup_ok -eq 0 ]; then
-    $(log "Backup is missing, please provide external running conf to source dir: $FULL_BACKUP_PATH")
+else
+    # if we couldn't even verify the initial config, something else entirely might be going on
+    $(log "Something went seriously wrong.")
 fi
 
 
