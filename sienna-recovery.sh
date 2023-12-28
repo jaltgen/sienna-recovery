@@ -30,6 +30,13 @@ ID="SIENNA-RECOVERY"
 . "$SCRIPTLOCATION/lib.sh"
 
 log "### COMMENCING CHECK PROCEDURE FOR 0byte ERROR###"
+
+if pgrep -x "$PROCESS_NAME" > /dev/null
+then
+    log "The Sienna NDIPE is running. No action will be taken."
+    exit 1
+fi
+
 log "Monitored config file: $FULL_CONF_PATH"
 
 exit-checks(){
