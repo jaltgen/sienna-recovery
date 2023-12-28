@@ -13,11 +13,12 @@
 # =====================================================================
 
 
-function log(){
+log(){
+    echo "$ID: $1"
     logger "$ID: $1"
 }
 
-function check_file(){
+check_file(){
     if [ -s $1 ]; then
         # echo "File $1 exists."
         file_size=$(ls -l $1 | awk '{print $5}')
@@ -30,4 +31,12 @@ function check_file(){
     else
         echo 0
     fi
+}
+
+print_running_conf(){
+    echo "==================="
+    echo "CURENT STATUS"
+    echo "==================="
+    echo "Running conf dir:"
+    ls "-la" "$RUNNING_CONF_PATH"
 }

@@ -32,26 +32,26 @@ ID="SIENNA-RECOVERY"
 log "### COMMENCING CHECK PROCEDURE FOR 0byte ERROR###"
 log "Monitored config file: $FULL_CONF_PATH"
 
-
-
-function exit-checks(){
+exit-checks(){
         log "The following backup will be used to restore NDIPE config: $1"
         cp "$1" "$FULL_CONF_PATH"
-        chown "$SIENNA_USER:$SIENNA_GROUP $FULL_CONF_PATH"
+        chown "$SIENNA_USER:$SIENNA_GROUP"  "$FULL_CONF_PATH"
         # compare the two files and see if they are the same
         cmp --silent "$1" "$FULL_CONF_PATH"  && log "Conf has been restored to: $FULL_CONF_PATH" || log "Config could not be restored."
-        exit 1
+        print_running_conf
+        exit 0
 }
 
-conf_ok=check_file "$FULL_CONF_PATH"
-pre_boot_ok=check_file "$PRE_BACKUP_PATH"
-last_flush_ok=check_file "$LAST_BACKUP_PATH"
-backup_ok=check_file "$FULL_BACKUP_PATH"
+conf_ok=$(check_file "$FULL_CONF_PATH")
+pre_boot_ok=$(check_file "$PRE_BACKUP_PATH")
+last_flush_ok=$(check_file "$LAST_BACKUP_PATH")
+backup_ok=$(check_file "$FULL_BACKUP_PATH")
 
 
 if  [ $conf_ok -eq 1 ]; then
     # if the config file is fine, no action is taken and the script terminates
     log "Running config at $FULL_CONF_PATH is >0bytes. No restorting action required."
+    print_running_conf
     exit 1
 elif [ $conf_ok -eq 0 ]; then
     # if the config file is not fine, we commence searching for backups
@@ -73,5 +73,4 @@ else
     # if we couldn't even verify the initial config, something else entirely might be going on
     log "Something went seriously wrong."
 fi
-
 
