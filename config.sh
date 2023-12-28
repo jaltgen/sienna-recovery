@@ -9,10 +9,10 @@
 # =====================================================================
 
 # absolute path to the sienna confix XML file
-FULL_CONF_PATH="/root/sienna/demo/config.xml"
+FULL_CONF_PATH="/home/ubuntu/NDIPE/resources/configurations/RouterConfig.xml"
 
 # absolute path to the "golden" backup config file, that will be used if the running conf above is broken.
-FULL_BACKUP_PATH="/root/sienna/demo/backup/config.bak.xml"
+FULL_BACKUP_PATH="/home/ubuntu/config-saver/backup/RouterConfig.xml.bak"
 
 # user and group names of the user that runs the Sienna NDIPE. Most likely "ubuntu" and "ubuntu".
 SIENNA_USER="ubuntu"
